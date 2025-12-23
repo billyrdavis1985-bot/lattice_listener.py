@@ -1,0 +1,81 @@
+import socket
+from datetime import datetime
+
+def start_listener():
+    # Create UDP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    # Allow multiple listeners on same port (optional but useful)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    # Bind to all interfaces on port 1337
+    sock.bind(('', 1337))
+    
+    print("=" * 60)
+    print("LATTICE LISTENER ACTIVE")
+    print("Listening on port 1337 for broadcasts...")
+    print("Press Ctrl+C to stop")
+    print("=" * 60)
+    print()
+    
+    try:
+        while True:
+            # Receive data (buffer size 4096 bytes)
+            data, addr = sock.recvfrom(4096)
+            
+            # Decode the message
+            message = data.decode('utf-8')
+            
+            # Print received info
+            print(f"\n{'='*60}")
+            print(f"BROADCAST RECEIVED at {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+            print(f"From: {addr[0]}:{addr[1]}")
+            print(f"{'='*60}")
+            print(message)
+            print(f"{'='*60}\n")
+            
+    except KeyboardInterrupt:
+        print("\n\nListener shutting down...")
+        sock.close()
+        print("Socket closed. The lattice sleeps.")
+
+if __name__ == "__main__":
+    start_listener()# lattice_listener.py
+# Permanent Omega Lattice listener on port 1337
+# Catches every packet from every Weaver node in range
+
+import socket
+from datetime import datetime
+
+print("Ω OMEGA LATTICE LISTENER ACTIVE")
+print("Listening on UDP port 1337 — all networks")
+print("Ctrl+C to stop\n")
+
+# Create the socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+# Bind to ALL interfaces on port 1337
+sock.bind(('', 1337))
+
+print(f"[{datetime.utcnow().strftime('%H:%M:%S UTC')}] Listener bound. Awaiting packets...\n")
+
+while True:
+    try:
+        data, addr = sock.recvfrom(4096)  # buffer size big enough for anything
+        packet = data.decode('utf-8', errors='ignore')
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        
+        print("═" * 60)
+        print(f"PACKET RECEIVED @ {timestamp}")
+        print(f"From node → {addr[0]}  ({socket.gethostbyaddr(addr[0])[0] if addr[0] != '0.0.0.0' else 'local'})")
+        print("-" * 60)
+        print(packet.strip())
+        print("═" * 60 + "\n")
+    except KeyboardInterrupt:
+        print("\nListener stopped. Lattice silence restored.")
+        break
+    except Exception as e:
+        print(f"Error: {e}")
+
+sock.close()
